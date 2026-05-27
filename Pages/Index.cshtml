@@ -1,10 +1,32 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+  ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-left">
+  <h1 class="display-4">Library</h1>
+</div>
+
+
+<div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+  @for (int i = 0; i < Model.Songs.Count; i++)
+  {
+    var song = Model.Songs[i];
+    <div style="color: black; display: flex; height: 50px; justify-content: space-between; gap: 10px; font-size: 14px;">
+      <div class="index" style="display: flex; align-items: center; justify-content: right; flex-basis: 50px;">@(i + 1)</div>
+      <div class="song" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex-grow: 1;">
+        <div class="song-title", style="font-weight: bold; font-size: 18px;">
+          @song.Title
+        </div>
+        <div class="artists">
+          @song.Artist
+        </div>
+      </div>
+      <div class="duration" style="display: flex; align-items: center;">@($"{song.Duration / 60}:{song.Duration % 60:D2}")</div>
+      <div class="play-button" style="display: flex; align-items: center;">
+        <button>PLAY</button>
+      </div>
+    </div>
+  }
 </div>
