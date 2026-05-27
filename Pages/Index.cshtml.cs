@@ -6,18 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AudioPlayer.Pages;
 
-public class IndexModel : PageModel
+public class IndexModel(AudioPlayerDBContext context) : PageModel
 {
-    private readonly AudioPlayerDBContext _context;
-    public IndexModel(AudioPlayerDBContext context)
-    {
-        _context = context;
-    }
+  public List<Song> Songs { get; set; } = [];
 
-    public List<Song> Songs { get; set; } = new();
-
-    public async Task OnGetAsync()
-    {
-        Songs = await _context.Songs.ToListAsync();
-    }
+  public async Task OnGetAsync()
+  {
+    Songs = await context.Songs.ToListAsync();
+  }
 }
