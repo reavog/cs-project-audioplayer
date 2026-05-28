@@ -4,10 +4,38 @@
   ViewData["Title"] = "Home page";
 }
 
-<div class="text-left">
-  <h1 class="display-4">Library</h1>
+
+<div id="player-ui" style="display: none; flex-direction: column; align-items: stretch; border-style: solid; height: 275px; border-radius: 8mm; padding: 6mm;">
+  <div id="player-info" style="display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <p id="player-title-display" style="margin-bottom: 0px; font-size: 28px; font-weight: bold;">Song Title</p>
+      <p id="player-artist" style="margin-bottom: 0px;">Artist Name </p>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <p id="running-time" style="margin-bottom: 0px; font-size: 22px;">MM:SS</p>
+      <p id="total-time" style="margin-bottom: 0px; font-size: 12px;">/ MM:SS</p>
+    </div>
+  </div>
+  <div id="seek" style="display: flex; flex-grow: 1; justify-content: center; align-items: center;"> 
+    <input type="range" id="seek-bar" min="0" max="100" value="0" style="width: 100%; accent-color: black; cursor: pointer;"></input>
+  </div>
+  <div id="player-ctl" style="display: flex; flex-grow: 1; align-items: center; justify-content: space-between;">
+    <div id="play-ctl">
+      <button id="back-btn"><i class="fa-solid fa-backward-step"></i></button>
+      <button id="play-pause-btn"><i class="fa-solid fa-pause"></i></button>
+      <button id="forward-btn"><i class="fa-solid fa-forward-step"></i></button>
+    </div>
+    <div style="display: flex; gap: 1mm;" >
+      <input type="range" id="vol-ctl" value="100" min="0" max ="100" style="width: 150px; accent-color: black; cursor: pointer;"> 
+      <p id="vol-percent" style="display: flex; width: 25px; justify-content: center; align-items: center; margin-bottom: 0px; font-size: 12px;">100</p>
+    </div>
+  </div>
+  
 </div>
 
+<div class="text-left">
+  <h1 class="display-4", style="font-size: 42px;">Library</h1>
+</div>
 
 <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
   @for (int i = 0; i < Model.Songs.Count; i++)
@@ -25,8 +53,69 @@
       </div>
       <div class="duration" style="display: flex; align-items: center;">@($"{song.Duration / 60}:{song.Duration % 60:D2}")</div>
       <div class="play-button" style="display: flex; align-items: center;">
-        <button>PLAY</button>
+        <button class="play-button-btn" data-song-id="@song.Id" data-title="@song.Title" data-artist="@song.Artist" data-duration="@song.Duration">PLAY</button>
       </div>
     </div>
   }
 </div>
+
+<audio id="audio-player" hidden></audio>
+
+<script>
+const player = document.getElementById('audio-player'); 
+const seekBar = document.getElementById('seek-bar')
+
+document.querySelectorAll('.play-button-btn').forEach(button => {
+  button.addEventListener('click', function() {
+    const songId = this.dataset.songId;
+    player.src = `/audio/${songId}/stream`;
+    player.play();
+    document.getElementById('player-ui').style.display = 'flex';
+    document.getElementById('player-title-display').textContent= this.dataset.title; 
+    document.getElementById('player-artist').textContent = this.dataset.artist;
+    document.getElementById('total-time').textContent = '/  ' + Math.floor(this.dataset.duration/ 60) + ':' + String(Math.floor(this.dataset.duration% 60)).padStart(2,'0');
+  });
+});
+
+//update the seek to match where the song is
+player.addEventListener('timeupdate', () => {
+  if (player.duration) {
+    seekBar.value = (player.currentTime / player.duration) * 100;
+    document.getElementById('running-time').textContent = Math.floor(player.currentTime / 60) + ':' + String(Math.floor(player.currentTime % 60)).padStart(2,'0');
+  }
+});
+
+//update the song to when the user moves the seek bar to
+seekBar.addEventListener('input', () => {
+  if (player.duration) {
+    player.currentTime = (seekBar.value / 100) * player.duration;
+  }
+});
+
+//update the volume based on the volume bar on the player
+const volBar = document.getElementById('vol-ctl');
+const volPercent = document.getElementById('vol-percent');
+
+volBar.addEventListener('input', () => {
+  player.volume = volBar.value / 100;
+  volPercent.innerHTML= volBar.value;
+});
+
+//let the player ui be able to control the player
+const playerPlayPauseBtn = document.getElementById('play-pause-btn');
+const playerBackBtn = document.getElementById('back-btn');
+const playerForwardBtn = document.getElementById('forward-btn');
+
+playerPlayPauseBtn.addEventListener('click', () => {
+  if (!player.paused && !player.ended) {
+    player.pause();
+    playerPlayPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+  } else {
+    player.play();
+    playerPlayPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+  }
+});
+playerBackBtn.addEventListener('click', () => {
+  player.currentTime = 0;
+})
+</script> 
