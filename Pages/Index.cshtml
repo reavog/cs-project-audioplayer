@@ -95,7 +95,6 @@ seekBar.addEventListener('input', () => {
 //update the volume based on the volume bar on the player
 const volBar = document.getElementById('vol-ctl');
 const volPercent = document.getElementById('vol-percent');
-
 volBar.addEventListener('input', () => {
   player.volume = volBar.value / 100;
   volPercent.innerHTML= volBar.value;
@@ -106,6 +105,7 @@ const playerPlayPauseBtn = document.getElementById('play-pause-btn');
 const playerBackBtn = document.getElementById('back-btn');
 const playerForwardBtn = document.getElementById('forward-btn');
 
+//change the icon of the play-pause button, and also play and pause the music accordingly
 playerPlayPauseBtn.addEventListener('click', () => {
   if (!player.paused && !player.ended) {
     player.pause();
@@ -115,6 +115,9 @@ playerPlayPauseBtn.addEventListener('click', () => {
     playerPlayPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
   }
 });
+
+//back button for the player.
+//to-do: go to previous song 
 playerBackBtn.addEventListener('click', () => {
   player.currentTime = 0;
 })
